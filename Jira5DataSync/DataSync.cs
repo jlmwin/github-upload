@@ -928,7 +928,7 @@ namespace Inflectra.SpiraTest.PlugIns.Jira5DataSync
                             if (jiraCustomFieldId == severityCustomFieldId.Value.ToString())
                             {
                                 //We only sync up the first of a multi-value custom field
-                                string jiraCustomFieldValueId = jiraCustomFieldValue.Value.ToString();
+                                string jiraCustomFieldValueId = jiraCustomFieldValue.Value.StringValue;
                                 SpiraSoapService.RemoteDataMapping dataMapping = InternalFunctions.FindMappingByExternalKey(projectId, jiraCustomFieldValueId, severityMappings, true);
                                 if (dataMapping != null)
                                 {
