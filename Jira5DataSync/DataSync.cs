@@ -2524,11 +2524,29 @@ namespace Inflectra.SpiraTest.PlugIns.Jira5DataSync
                     long incidentCount = spiraImportExport.Incident_Count(null);
                     for (int startRow = 1; startRow <= incidentCount; startRow += Constants.INCIDENT_PAGE_SIZE_SPIRA)
                     {
-                        RemoteIncident[] incidentBatch = spiraImportExport.Incident_RetrieveNew(lastSyncDate.Value, startRow, Constants.INCIDENT_PAGE_SIZE_SPIRA);
-                        incidentList.AddRange(incidentBatch);
+                        //RemoteIncident[] incidentBatch = spiraImportExport.Incident_RetrieveNew(lastSyncDate.Value, startRow, Constants.INCIDENT_PAGE_SIZE_SPIRA);
+                        //incidentList.AddRange(incidentBatch);
+
+                        var filters = new List<RemoteFilter>();
+                        var sort = new RemoteSort() { PropertyName = "Name", SortAscending = true  };
+
+                        RemoteIncident[] incidentBatch = spiraImportExport.Incident_Retrieve(filters.ToArray(), sort, startRow, Constants.INCIDENT_PAGE_SIZE_SPIRA);
+
+                        LogTraceEvent("Method: Incident_Retrieve, Count: " + incidentBatch.Count(), EventLogEntryType.Information);
+
+                        foreach (var item in incidentBatch)
+                        {
+                            if (!incidentMappings.Any(i => i.InternalId.Equals(item.IncidentId.Value)))
+                            {
+                                incidentList.Add(item);
+                                LogTraceEvent("Found new Incident: " + item.IncidentId, EventLogEntryType.Information);
+                            }
+                        }
+
+                        //var newIncidents = incidentBatch.Where(i => incidentMappings.Select(s => s.InternalId).Contains(i.IncidentId.Value));
+                        //incidentList.AddRange(newIncidents);
                     }
                     LogTraceEvent(eventLog, "Found " + incidentList.Count + " new incidents in " + productName, EventLogEntryType.Information);
-
 
                     //Create the mapping collections to hold any new items that need to get added to the mappings
                     //or any old items that need to get removed from the mappings
